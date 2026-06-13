@@ -1,0 +1,24 @@
+# ── 비밀 (절대 커밋 금지) ──
+.env
+*.key
+
+# ── 파이썬 ──
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# ── 수집 데이터·생성 산출물 (대용량 + Qoo10 약관/저작권 고려) ──
+qoo10.db
+images/
+out/
+logs/
+web/projects/
+
+# ── 생성된 샘플 spec(픽스처는 유지, 자동생성분만 제외) ──
+samples/spec_*_auto.json
+samples/spec_*_drafted.json
+
+# ── OS · 에디터 · 로컬 툴 ──
+.DS_Store
+.claude/

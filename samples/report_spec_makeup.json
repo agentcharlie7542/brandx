@@ -1,0 +1,154 @@
+{
+  "spec_version": "1.0",
+  "project_id": "sample-makeup-20260608",
+  "category_label": "색조 메이크업",
+  "generated_at": "2026-06-08",
+  "prepared_by": "Aiden Lab",
+
+  "shops": [
+    { "id": "wakemake_official", "name": "WAKEMAKE", "role": "own", "url": "https://www.qoo10.jp/shop/wakemake_official", "tagline": "립/IP콜라보" },
+    { "id": "colorgram", "name": "컬러그램", "role": "own", "url": "https://www.qoo10.jp/shop/colorgram", "tagline": "Y2K·짱구" },
+    { "id": "ROMAND", "name": "ROMAND", "role": "competitor", "url": "https://www.qoo10.jp/shop/ROMAND", "tagline": "누드·신컬러" },
+    { "id": "amuse", "name": "amuse", "role": "competitor", "url": "https://www.qoo10.jp/shop/amuse", "tagline": "드리미·라이브" },
+    { "id": "fwee", "name": "fwee", "role": "competitor", "url": "https://www.qoo10.jp/shop/fwee", "tagline": "쿠션·세트" },
+    { "id": "lakaofficial", "name": "LAKA", "role": "competitor", "url": "https://www.qoo10.jp/shop/lakaofficial", "tagline": "에디토리얼·젠더리스" },
+    { "id": "milktouch", "name": "milktouch", "role": "competitor", "url": "https://www.qoo10.jp/shop/milktouch", "tagline": "핑크·하트" }
+  ],
+
+  "metrics": {
+    "wakemake_official": { "sku": 33, "price_min": 790, "price_median": 1650, "price_max": 5738, "review_volume": 23877, "review_capped": false, "top5_power": 0.21, "set_ratio": 0.24, "jp_limited": 0, "satisfaction": 93, "followers": 402944, "seller_grade": "POWER", "promo_intensity": 60.9, "est_revenue_30d": null },
+    "colorgram":         { "sku": 23, "price_min": 590, "price_median": 1155, "price_max": 4238, "review_volume": 15987, "review_capped": false, "top5_power": 0.31, "set_ratio": 0.26, "jp_limited": 2, "satisfaction": 93, "followers": 80983,  "seller_grade": "POWER", "promo_intensity": 34.8, "est_revenue_30d": null },
+    "ROMAND":            { "sku": 49, "price_min": 736, "price_median": 1361, "price_max": 3190, "review_volume": 40477, "review_capped": false, "top5_power": 0.12, "set_ratio": 0.0,  "jp_limited": 1, "satisfaction": 94, "followers": 415590, "seller_grade": "POWER", "promo_intensity": 100,  "est_revenue_30d": null },
+    "amuse":             { "sku": 34, "price_min": 990, "price_median": 1870, "price_max": 4350, "review_volume": 12876, "review_capped": false, "top5_power": 0.39, "set_ratio": 0.15, "jp_limited": 1, "satisfaction": 94, "followers": 241726, "seller_grade": "POWER", "promo_intensity": 26.1, "est_revenue_30d": null },
+    "fwee":              { "sku": 24, "price_min": 880, "price_median": 1760, "price_max": 4800, "review_volume": 4995,  "review_capped": true,  "top5_power": 1.0,  "set_ratio": 0.13, "jp_limited": 0, "satisfaction": 94, "followers": 366421, "seller_grade": "POWER", "promo_intensity": 0,    "est_revenue_30d": null },
+    "lakaofficial":      { "sku": 22, "price_min": 960, "price_median": 1970, "price_max": 3550, "review_volume": 4995,  "review_capped": true,  "top5_power": 1.0,  "set_ratio": 0.05, "jp_limited": 0, "satisfaction": 92, "followers": 378702, "seller_grade": "POWER", "promo_intensity": 13,   "est_revenue_30d": null },
+    "milktouch":         { "sku": 23, "price_min": 1505,"price_median": 2717, "price_max": 6863, "review_volume": 17965, "review_capped": false, "top5_power": 0.28, "set_ratio": 0.13, "jp_limited": 0, "satisfaction": 94, "followers": 315111, "seller_grade": "POWER", "promo_intensity": 47.8, "est_revenue_30d": null }
+  },
+
+  "design_scores": {
+    "wakemake_official": { "thumbnail": 4, "shop_main": 5, "localization": 5, "promo_design": 5, "consistency": 5, "total": 4.75, "rank": 1, "scorer": "ai_draft" },
+    "colorgram":         { "thumbnail": 4, "shop_main": 4, "localization": 5, "promo_design": 4, "consistency": 5, "total": 4.35, "rank": 3, "scorer": "ai_draft" },
+    "ROMAND":            { "thumbnail": 4, "shop_main": 4, "localization": 4, "promo_design": 4, "consistency": 5, "total": 4.15, "rank": 6, "scorer": "ai_draft" },
+    "amuse":             { "thumbnail": 4, "shop_main": 5, "localization": 4, "promo_design": 5, "consistency": 5, "total": 4.55, "rank": 2, "scorer": "ai_draft" },
+    "fwee":              { "thumbnail": 4, "shop_main": 4, "localization": 4, "promo_design": 5, "consistency": 4, "total": 4.2,  "rank": 5, "scorer": "ai_draft" },
+    "lakaofficial":      { "thumbnail": 4, "shop_main": 4, "localization": 4, "promo_design": 5, "consistency": 5, "total": 4.35, "rank": 3, "scorer": "ai_draft" },
+    "milktouch":         { "thumbnail": 3, "shop_main": 4, "localization": 4, "promo_design": 4, "consistency": 5, "total": 3.9,  "rank": 7, "scorer": "ai_draft" }
+  },
+
+  "gap": [
+    { "metric": "review_volume",  "label": "리뷰 볼륨",    "own": 23877, "leader": 40477, "leader_shop": "ROMAND", "achievement_pct": 59.0, "note": "리뷰적립·물량" },
+    { "metric": "promo_intensity","label": "프로모션 강도", "own": 60.9,  "leader": 100,   "leader_shop": "ROMAND", "achievement_pct": 60.9, "note": "메가와리 확대" },
+    { "metric": "followers",      "label": "팔로워",       "own": 402944,"leader": 415590,"leader_shop": "ROMAND", "achievement_pct": 97.0, "note": "거의 동급(wakemake)" },
+    { "metric": "satisfaction",   "label": "만족도",       "own": 93,    "leader": 94,    "leader_shop": "ROMAND", "achievement_pct": 98.9, "note": "소폭 보강" },
+    { "metric": "design_total",   "label": "디자인 총점",   "own": 4.75,  "leader": 4.75,  "leader_shop": "wakemake_official", "achievement_pct": 100, "note": "그룹 1위 · 유지" }
+  ],
+
+  "charts": {
+    "price_review": "out/positioning_makeup_price_review.png",
+    "follower_sat": "out/positioning_makeup_follower_sat.png"
+  },
+
+  "gallery": [
+    { "shop_id": "wakemake_official", "image": "out/banners/wakemake_official_main.jpg", "score": 4.75, "caption": "Hello Kitty 平成ギャル" },
+    { "shop_id": "colorgram", "image": "out/banners/colorgram_main.jpg", "score": 4.35, "caption": "Y2K 짱구 日本限定" },
+    { "shop_id": "ROMAND", "image": "out/banners/ROMAND_main.jpg", "score": 4.15, "caption": "누드 브랜드 일관성" },
+    { "shop_id": "amuse", "image": "out/banners/amuse_main.jpg", "score": 4.55, "caption": "드리미·라이브" },
+    { "shop_id": "milktouch", "image": "out/banners/milktouch_main.jpg", "score": 3.9, "caption": "핑크 하트 미니멀" },
+    { "shop_id": "fwee", "image": "out/banners/fwee_main.jpg", "score": 4.2, "caption": "스크랩북·세트" },
+    { "shop_id": "lakaofficial", "image": "out/banners/lakaofficial_main.jpg", "score": 4.35, "caption": "에디토리얼 젠더리스" }
+  ],
+
+  "marketing": {
+    "tone": {
+      "wakemake_official": { "mood": "핑크 Hello Kitty 콜라보", "campaign": "HELLO KITTY × 平成ギャルエディション + 계단식쿠폰 + 콜라보 증정구좌 (IP 현지화 최상)" },
+      "colorgram":         { "mood": "Y2K 핑크 키치", "campaign": "ギャルしんちゃん(짱구) コレクション · 日本限定 캐릭터 굿즈 · Qoo10 先行販売" },
+      "ROMAND":            { "mood": "누드·베이지 일관성", "campaign": "豆乳カラー 신컬러 + ZO FRIENDS 콜라보 라인 + Qoo10 先行発売" },
+      "amuse":             { "mood": "드리미 스카이블루", "campaign": "메가割 최대 64%OFF + 쿠폰 3종(LIVE) + 금액별 증정 + 日替わりイベント" },
+      "fwee":              { "mood": "블루/핑크 스크랩북", "campaign": "All Day Cushion 메가割 + NAYEON 포스터 증정 + 세트 45/41%OFF + 송료무료" },
+      "lakaofficial":      { "mood": "에디토리얼 미니멀", "campaign": "MEGAWARI ~57%OFF + 요일별 1日特価 캘린더 + Shop Coupon (젠더리스 무드)" },
+      "milktouch":         { "mood": "핑크 하트", "campaign": "6月메가割 + 채널별 쿠폰(LIPS·LINE·메가割) + ぎょうざのりさ·MOMONA 콜라보" }
+    },
+    "collabs": [
+      { "shop_id": "wakemake_official", "partner": "HELLO KITTY (산리오 IP)", "type": "IP", "note": "산리오 IP 배너 + 콜라보 본품/리필" },
+      { "shop_id": "wakemake_official", "partner": "マスマルールズ", "type": "influencer" },
+      { "shop_id": "colorgram", "partner": "ギャルしんちゃん (짱구)", "type": "influencer", "note": "日本限定 캐릭터 3종 — IP 현지화 최강" },
+      { "shop_id": "ROMAND", "partner": "ZO FRIENDS", "type": "influencer", "note": "9개 SKU 콜라보 라인 (경쟁 최다)" },
+      { "shop_id": "milktouch", "partner": "ぎょうざのりさ", "type": "influencer", "note": "메가割 세트" },
+      { "shop_id": "milktouch", "partner": "MOMONA", "type": "influencer", "note": "메가割 세트" },
+      { "shop_id": "fwee", "partner": "NAYEON / TWICE", "type": "IP", "note": "포스터 증정 (IP 배너)" }
+    ],
+    "event_intensity": [
+      { "shop_id": "wakemake_official", "coupon": "-", "timesale": 32, "avg_off": 14.6, "megawari": 32, "set": 7 },
+      { "shop_id": "colorgram", "coupon": 1, "timesale": 19, "avg_off": 11.4, "megawari": 22, "set": 4 },
+      { "shop_id": "ROMAND", "coupon": 1, "timesale": 49, "avg_off": 8.4, "megawari": 49, "set": 0 },
+      { "shop_id": "fwee", "coupon": "-", "timesale": 4, "avg_off": 32.5, "megawari": 20, "set": 2 },
+      { "shop_id": "milktouch", "coupon": 3, "timesale": 23, "avg_off": 5.5, "megawari": 23, "set": 3 },
+      { "shop_id": "amuse", "coupon": 1, "timesale": 15, "avg_off": 10.6, "megawari": 34, "set": 4 },
+      { "shop_id": "lakaofficial", "coupon": 5, "timesale": 5, "avg_off": 5.7, "megawari": 22, "set": 1 }
+    ]
+  },
+
+  "narrative": {
+    "exec_summary": {
+      "kpis": [
+        { "value": "4.75 / 5.0", "label": "디자인 총점 (그룹 1위)" },
+        { "value": "¥1,155~1,650", "label": "가격 중앙값 (그룹 최저가권)" },
+        { "value": "8.1만", "label": "컬러그램 팔로워 (그룹 최저)" },
+        { "value": "일본 IP", "label": "Hello Kitty · 짱구 콜라보" }
+      ],
+      "findings": [
+        { "title": "디자인·현지화는 그룹 최강 (강점)", "body": "wakemake 디자인 4.75(1위)·현지화 5.0. Hello Kitty·짱구(クレヨンしんちゃん) 등 일본 IP 콜라보로 현지 적합도 압도적. 세트비중 24~26%도 그룹 최상위." },
+        { "title": "컬러그램 '도달'이 최대 병목", "body": "팔로워 8.1만으로 그룹 최저(경쟁 24~42만). 디자인·IP는 강하나 노출 기반이 작아 매출 천장으로 작용." },
+        { "title": "리뷰볼륨·프로모는 ROMAND가 기준", "body": "ROMAND 리뷰 4.0만·메가와리 9건·프로모 100. wakemake 리뷰 2.4만·프로모 60.9로 추격 중 — 물량·프로모 구조에서 갭." }
+      ],
+      "conclusion": "스킨케어와 반대 — 메이크업은 '디자인·IP 현지화' 강점을 이미 확보. 이를 '도달(팔로워)·리뷰볼륨'으로 전환하는 것이 핵심 레버.",
+      "footnote": "리뷰볼륨은 큐텐 999+ 표기 상한으로 히어로 강한 fwee·LAKA가 과소집계 — 절대비교보다 구조·추세 해석에 사용."
+    },
+    "market_context": [
+      { "head": "Qoo10 '25.6 월간 랭킹", "title": "립 카테고리 = ROMAND 강세", "body": "ROMAND '쥬시래스팅틴트'가 큐텐 월간 립 랭킹 3위. 濡れツヤ·고발색 립이 색조 카테고리 핵심 수요." },
+      { "head": "2026 립 트렌드", "title": "'쥬시 글로우' 글레이즈", "body": "틴트 발색+글로스 윤기를 결합한 쥬시/글레이즈 립이 주류. ROMAND 쥬시플래시 립오일 등 신카테고리 확산." },
+      { "head": "레트로 무드", "title": "平成ギャル · Y2K 복고", "body": "平成ギャル·Y2K 레트로가 메이크업 트렌드로 부상 — 자사 wakemake(Hello Kitty 平成ギャル)·컬러그램(Y2K 짱구)이 정조준." },
+      { "head": "경쟁사 포지션", "title": "무드·IP로 차별화", "body": "ROMAND=누드·신컬러 스토리, amuse=드리미·라이브커머스, fwee=쿠션·TWICE 포스터, LAKA=에디토리얼 젠더리스." }
+    ],
+    "design_diagnosis": [
+      { "item": "현지화", "score": 5.0, "comment": "최강 — Hello Kitty·짱구 일본 IP, 平成ギャル/Y2K 무드" },
+      { "item": "샵 메인", "score": 5.0, "comment": "wakemake 콜라보·계단식쿠폰·증정 구좌 체계화 (강점)" },
+      { "item": "프로모션 설계", "score": 5.0, "comment": "wakemake 동선 양호 / 컬러그램은 4.0로 보강 여지" },
+      { "item": "일관성", "score": 5.0, "comment": "핑크·키치 톤 통일, 두 샵 모두 일관성 우수" },
+      { "item": "썸네일", "score": 4.0, "comment": "베네핏·립 컬러 스와치 시각화 강화 시 5.0 가능" }
+    ],
+    "diagnosis_swot": {
+      "S": ["디자인 4.75·현지화 5.0 — 그룹 1위", "Hello Kitty·짱구 등 일본 IP 콜라보 보유", "세트비중 24~26%로 객단가 구조 우수", "저가 진입가 + 일본한정 기획(컬러그램 2개)"],
+      "W": ["컬러그램 팔로워 8.1만 — 그룹 최저", "리뷰볼륨 ROMAND의 59% 수준", "쿠폰·프로모 구조가 ROMAND 대비 빈약", "만족도 93%로 그룹 평균 소폭 하회"],
+      "O": ["平成ギャル·Y2K 레트로 트렌드와 정합", "쥬시 글로우 립 트렌드 신상 전개 여지", "IP 화제성→팔로워·리뷰 전환 장치 부재", "라이브커머스(amuse 모델)로 도달 확대"],
+      "T": ["ROMAND의 립 물량·메가와리 49건 공세", "amuse·fwee의 IP·라이브 마케팅 강화", "두 자사샵 간 카니발(컬러그램 vs wakemake)", "색조 신규 진입 브랜드 증가·가격 경쟁"]
+    },
+    "recommendation_quickwin": [
+      { "title": "컬러그램 팔로워 확보 캠페인", "kpi": "팔로워 최저→↑", "body": "팔로우 시 쿠폰·짱구 굿즈 추첨·先行 알림을 메인 상단 고정. 도달이 약점인 만큼 1순위 — 팔로우 전환 상시화." },
+      { "title": "IP 콜라보 화제성 극대화", "kpi": "현지화 5.0 활용", "body": "Hello Kitty·짱구 콜라보를 SNS·라이브·검색 키워드와 연계. 일본 IP 강점을 유입·바이럴로 전환." },
+      { "title": "리뷰 적립 동선 구축", "kpi": "리뷰볼륨 59%→↑", "body": "립·틴트 컬러 후기 인센티브(포인트·쿠폰)를 구매 직후 안내. ROMAND 대비 리뷰 격차 축소." },
+      { "title": "프로모션 구조 강화", "kpi": "프로모 60.9→↑", "body": "메가와리 SKU·계단식 쿠폰 확대(ROMAND 49건 벤치마크). 쥬시 글로우 립 신상 타임세일 전면화." }
+    ],
+    "recommendation_structure": [
+      { "title": "두 샵 역할 분담", "tag": "카니발 방지 (wakemake↔컬러그램)", "body": "wakemake=Hello Kitty/平成ギャル 메인·립, 컬러그램=Y2K/짱구·아이/틴트로 컨셉·SKU 분리. 행사 시차·전용 세트로 자기잠식 최소화." },
+      { "title": "쥬시 글로우 립 전면화", "tag": "2026 트렌드 상품 선점", "body": "틴트+글로스 결합 '쥬시/글레이즈' 립을 히어로로 전면 배치. ROMAND 쥬시 라인 대응 신상·세트 기획." },
+      { "title": "세트 객단가 강점 확대", "tag": "이미 그룹 최상위(24~26%)", "body": "목적형 세트(메이크룩 완성·평성갸루룩)로 세트 선택률·AOV 추가 상승. 단품 유입→세트 업셀 동선 강화." },
+      { "title": "라이브커머스 도입", "tag": "amuse·fwee 벤치마크", "body": "IP·신상 런칭을 라이브로 연계해 도달·전환 동시 확보. 컬러그램 팔로워 확보와 결합." },
+      { "title": "레트로 트렌드 콘텐츠", "tag": "平成ギャル·Y2K 선점", "body": "상세·썸네일·검색 키워드에 平成ギャル/Y2K 무드 일관 적용. 자사 IP와 결합해 현지 트렌드 리더십 강화." }
+    ],
+    "next_steps": {
+      "phases": [
+        { "period": "D+0 ~ D+14", "title": "Quick Win", "body": "컬러그램 팔로워 캠페인·IP 화제성·리뷰 동선·프로모 구조 강화" },
+        { "period": "W2 ~ M1", "title": "구조·콘텐츠", "body": "두 샵 역할 분담·쥬시 글로우 립 전면화·세트 확대·라이브 도입" },
+        { "period": "M1+", "title": "확장·자산화", "body": "平成ギャル/Y2K 콘텐츠·IP 콜라보 자산화 → 2주 단위 승자안 확장" }
+      ],
+      "sources": [
+        "1차 데이터: Qoo10 샵·상품 수집(2026.06) — 팔로워·만족도·가격·SKU는 실측, 리뷰볼륨은 999+ 상한 영향(fwee·LAKA)",
+        "디자인 루브릭: 샵 톱 캡처 기반 5항목 채점 / 마케팅 인텔리전스: 상품명 자동 채굴 + 캡처 AI 시각분석(잠정)",
+        "온라인 보강: media.kawa-colle.jp(Qoo10 랭킹) · maquia·mynavi(2026 트렌드) · lipscosme.com(Y2K·rom&nd)"
+      ]
+    }
+  },
+
+  "review": { "status": "approved", "editor": "agentkang", "edited_at": "2026-06-08" }
+}

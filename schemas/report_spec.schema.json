@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidenlab.local/qoo10-bench/report_spec.schema.json",
+  "title": "Qoo10 경쟁분석 report-spec",
+  "description": "데이터(자동)와 서사(AI 초안→사람 검수)를 합친 단일 계약. 덱 생성기는 이 spec만 보고 16슬라이드 PPTX를 결정론적으로 렌더한다. 샵 수는 가변(자사 1+ · 경쟁 1+, 제품 기본 = 자사1+경쟁3).",
+  "type": "object",
+  "required": ["spec_version", "category_label", "generated_at", "shops", "metrics", "design_scores", "gap", "narrative"],
+  "additionalProperties": false,
+  "properties": {
+    "spec_version": { "type": "string", "const": "1.0" },
+    "project_id": { "type": "string" },
+    "category_label": { "type": "string", "description": "예: 기초 스킨케어 / 색조 메이크업" },
+    "generated_at": { "type": "string", "description": "YYYY-MM-DD" },
+    "prepared_by": { "type": "string", "default": "Aiden Lab" },
+
+    "shops": {
+      "type": "array", "minItems": 2, "maxItems": 8,
+      "description": "자사 1+ · 경쟁 1+. 제품 기본 입력은 자사1+경쟁3.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "role", "url"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "qoo10 shop slug" },
+          "name": { "type": "string", "description": "표시명" },
+          "role": { "type": "string", "enum": ["own", "competitor"] },
+          "url": { "type": "string", "pattern": "^https://www\\.qoo10\\.jp/shop/" },
+          "tagline": { "type": "string", "description": "샵칩 1줄 설명(예: 누드·신컬러)" }
+        }
+      }
+    },
+
+    "metrics": {
+      "type": "object",
+      "description": "shop_id → 정량 지표. 데이터 슬라이드(스코어카드·포지셔닝·갭) 소스.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["sku", "price_median", "review_volume", "top5_power", "set_ratio", "jp_limited", "satisfaction", "followers", "promo_intensity"],
+        "additionalProperties": false,
+        "properties": {
+          "sku": { "type": "integer" },
+          "price_min": { "type": ["number", "null"] },
+          "price_median": { "type": "number" },
+          "price_max": { "type": ["number", "null"] },
+          "review_volume": { "type": "integer" },
+          "review_capped": { "type": "boolean", "default": false, "description": "999+ 상한 영향(과소집계)" },
+          "top5_power": { "type": "number" },
+          "set_ratio": { "type": "number" },
+          "jp_limited": { "type": "integer" },
+          "satisfaction": { "type": "number" },
+          "followers": { "type": "integer" },
+          "seller_grade": { "type": ["string", "null"] },
+          "promo_intensity": { "type": "number" },
+          "est_revenue_30d": { "type": ["number", "null"], "description": "2-스냅샷 필요. 단발수집 시 null" }
+        }
+      }
+    },
+
+    "design_scores": {
+      "type": "object",
+      "description": "shop_id → 5점 루브릭. scorer=vision_draft(초안) | human(검수확정).",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["thumbnail", "shop_main", "localization", "promo_design", "consistency", "total", "scorer"],
+        "additionalProperties": false,
+        "properties": {
+          "thumbnail": { "type": "number" },
+          "shop_main": { "type": "number" },
+          "localization": { "type": "number" },
+          "promo_design": { "type": "number" },
+          "consistency": { "type": "number" },
+          "total": { "type": "number" },
+          "rank": { "type": ["integer", "null"] },
+          "scorer": { "type": "string", "enum": ["vision_draft", "human", "ai_draft"] }
+        }
+      }
+    },
+
+    "gap": {
+      "type": "array",
+      "description": "자사 대표샵 vs 그룹 1위. 갭 큰 순 우선순위.",
+      "items": {
+        "type": "object",
+        "required": ["metric", "label", "own", "leader", "leader_shop", "achievement_pct"],
+        "additionalProperties": false,
+        "properties": {
+          "metric": { "type": "string" },
+          "label": { "type": "string" },
+          "own": { "type": "number" },
+          "leader": { "type": "number" },
+          "leader_shop": { "type": "string" },
+          "achievement_pct": { "type": "number", "description": "자사/1위 ×100" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+
+    "charts": {
+      "type": "object",
+      "description": "생성된 차트 이미지 경로(생성기가 만들거나 사전 렌더).",
+      "additionalProperties": false,
+      "properties": {
+        "price_review": { "type": "string" },
+        "follower_sat": { "type": "string" },
+        "rubric_bar": { "type": "string" },
+        "gap_bar": { "type": "string" }
+      }
+    },
+
+    "gallery": {
+      "type": "array",
+      "description": "디자인 벤치마크 갤러리 카드(샵별 메인 배너 + 점수 + 캡션).",
+      "items": {
+        "type": "object",
+        "required": ["shop_id", "image", "score", "caption"],
+        "additionalProperties": false,
+        "properties": {
+          "shop_id": { "type": "string" },
+          "image": { "type": "string", "description": "out/banners 경로 또는 스토리지 URL" },
+          "score": { "type": "number" },
+          "caption": { "type": "string" }
+        }
+      }
+    },
+
+    "marketing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tone": {
+          "type": "object",
+          "description": "shop_id → {톤앤매너, 메인캠페인}. 비전 초안→검수.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["mood", "campaign"],
+            "additionalProperties": false,
+            "properties": {
+              "mood": { "type": "string" },
+              "campaign": { "type": "string" }
+            }
+          }
+        },
+        "collabs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["shop_id", "partner", "type"],
+            "additionalProperties": false,
+            "properties": {
+              "shop_id": { "type": "string" },
+              "partner": { "type": "string" },
+              "type": { "type": "string", "enum": ["IP", "influencer"] },
+              "note": { "type": "string" }
+            }
+          }
+        },
+        "event_intensity": {
+          "type": "array",
+          "description": "p11 이벤트강도표. 샵 1행. coupon은 없으면 \"-\".",
+          "items": {
+            "type": "object",
+            "required": ["shop_id", "coupon", "timesale", "avg_off", "megawari", "set"],
+            "additionalProperties": false,
+            "properties": {
+              "shop_id": { "type": "string" },
+              "coupon": { "type": ["integer", "string"] },
+              "timesale": { "type": "integer" },
+              "avg_off": { "type": "number" },
+              "megawari": { "type": "integer" },
+              "set": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+
+    "narrative": {
+      "type": "object",
+      "description": "정성 슬라이드(AI 초안→사람 검수). review.status가 approved여야 최종 렌더.",
+      "required": ["exec_summary", "diagnosis_swot", "recommendation_quickwin", "next_steps"],
+      "additionalProperties": false,
+      "properties": {
+        "exec_summary": {
+          "type": "object",
+          "required": ["kpis", "findings", "conclusion"],
+          "additionalProperties": false,
+          "properties": {
+            "kpis": {
+              "type": "array", "minItems": 3, "maxItems": 4,
+              "items": {
+                "type": "object",
+                "required": ["value", "label"],
+                "additionalProperties": false,
+                "properties": { "value": { "type": "string" }, "label": { "type": "string" } }
+              }
+            },
+            "findings": {
+              "type": "array", "minItems": 3, "maxItems": 3,
+              "items": {
+                "type": "object",
+                "required": ["title", "body"],
+                "additionalProperties": false,
+                "properties": { "title": { "type": "string" }, "body": { "type": "string" } }
+              }
+            },
+            "conclusion": { "type": "string" },
+            "footnote": { "type": "string" }
+          }
+        },
+        "market_context": {
+          "type": "array", "maxItems": 4,
+          "items": {
+            "type": "object",
+            "required": ["head", "title", "body"],
+            "additionalProperties": false,
+            "properties": {
+              "head": { "type": "string" }, "title": { "type": "string" },
+              "body": { "type": "string" }, "source": { "type": "string" }
+            }
+          }
+        },
+        "design_diagnosis": {
+          "type": "array",
+          "description": "p9 자사 항목별 진단(점수+코멘트).",
+          "items": {
+            "type": "object",
+            "required": ["item", "score", "comment"],
+            "additionalProperties": false,
+            "properties": {
+              "item": { "type": "string" }, "score": { "type": "number" }, "comment": { "type": "string" }
+            }
+          }
+        },
+        "diagnosis_swot": {
+          "type": "object",
+          "required": ["S", "W", "O", "T"],
+          "additionalProperties": false,
+          "properties": {
+            "S": { "type": "array", "items": { "type": "string" } },
+            "W": { "type": "array", "items": { "type": "string" } },
+            "O": { "type": "array", "items": { "type": "string" } },
+            "T": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "recommendation_quickwin": {
+          "type": "array", "maxItems": 4,
+          "items": {
+            "type": "object",
+            "required": ["title", "kpi", "body"],
+            "additionalProperties": false,
+            "properties": { "title": { "type": "string" }, "kpi": { "type": "string" }, "body": { "type": "string" } }
+          }
+        },
+        "recommendation_structure": {
+          "type": "array", "maxItems": 5,
+          "items": {
+            "type": "object",
+            "required": ["title", "tag", "body"],
+            "additionalProperties": false,
+            "properties": { "title": { "type": "string" }, "tag": { "type": "string" }, "body": { "type": "string" } }
+          }
+        },
+        "next_steps": {
+          "type": "object",
+          "required": ["phases", "sources"],
+          "additionalProperties": false,
+          "properties": {
+            "phases": {
+              "type": "array", "minItems": 3, "maxItems": 3,
+              "items": {
+                "type": "object",
+                "required": ["period", "title", "body"],
+                "additionalProperties": false,
+                "properties": { "period": { "type": "string" }, "title": { "type": "string" }, "body": { "type": "string" } }
+              }
+            },
+            "sources": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": { "type": "string", "enum": ["draft", "edited", "approved"], "default": "draft" },
+        "editor": { "type": "string" },
+        "edited_at": { "type": "string" }
+      }
+    }
+  }
+}

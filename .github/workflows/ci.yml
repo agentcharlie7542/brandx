@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+      - name: report-spec 스키마 + 샘플 검증
+        run: |
+          python - <<'PY'
+          import json, jsonschema
+          schema = json.load(open("schemas/report_spec.schema.json"))
+          jsonschema.Draft202012Validator.check_schema(schema)
+          for fx in ("samples/report_spec_makeup.json", "samples/report_spec_foursome.json"):
+              jsonschema.Draft202012Validator(schema).validate(json.load(open(fx)))
+              print("✓ valid:", fx)
+          PY
+      - name: 덱 생성기 스모크 (샘플 → 16슬라이드 PPTX)
+        run: |
+          python -m deck.build samples/report_spec_makeup.json /tmp/ci_makeup.pptx
+          python -m deck.build samples/report_spec_foursome.json /tmp/ci_4.pptx
+          python - <<'PY'
+          from pptx import Presentation
+          for f in ("/tmp/ci_makeup.pptx", "/tmp/ci_4.pptx"):
+              n = len(Presentation(f).slides)
+              assert n == 16, f"{f}: {n} slides"
+              print("✓ 16 slides:", f)
+          PY
+      - name: import 스모크 (web·파이프라인)
+        run: python -c "import build_spec, draft_narrative, web.app, deck.build; print('✓ imports OK')"
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker 이미지 빌드 검증
+        run: docker build -t brandx-qoo10:ci .

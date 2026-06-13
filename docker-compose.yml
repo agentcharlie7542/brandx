@@ -1,0 +1,23 @@
+# 사내 단일 서버 배포. `docker compose up -d --build` → http://<host>:8000
+# 데이터(db·이미지·산출물·프로젝트)는 호스트에 바인드 마운트로 영속.
+services:
+  web:
+    build: .
+    image: brandx-qoo10:latest
+    container_name: brandx-qoo10
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env                       # ANTHROPIC_API_KEY (AI 서사용)
+    volumes:
+      - ./qoo10.db:/app/qoo10.db          # 수집 데이터 (없으면 먼저 `touch qoo10.db`)
+      - ./images:/app/images              # 캡처·배너
+      - ./out:/app/out                    # 생성 PPTX·차트
+      - ./web/projects:/app/web/projects  # 검수 프로젝트 spec
+    restart: unless-stopped
+
+# 수집·스코어링은 일회성 실행으로:
+#   docker compose run --rm web python collect.py --group all
+#   docker compose run --rm web python score.py   --group all
+#   docker compose run --rm web python marketing.py --group all
+# (cron 은 호스트에서 위 명령을 일 1회 호출 — run_daily.sh 참고)

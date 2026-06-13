@@ -1,0 +1,17 @@
+# 이미지에 넣지 않음 (비밀·대용량·생성물·VCS)
+.git/
+.github/
+.venv/
+__pycache__/
+*.pyc
+.env
+qoo10.db
+images/
+out/
+logs/
+web/projects/
+samples/spec_*_auto.json
+samples/spec_*_drafted.json
+.DS_Store
+.claude/
+*.md

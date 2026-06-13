@@ -22,9 +22,12 @@ sys.path.insert(0, str(ROOT))
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, PlainTextResponse
 
+import threading
+
 import build_spec as BS
 import draft_narrative as DN
-from shops_groups import GROUPS, group_label, resolve_group, QOO10_SHOP_URL
+import pipeline as PL
+from shops_groups import GROUPS
 from deck.build import build_deck
 
 PROJ = ROOT / "web" / "projects"
@@ -97,18 +100,6 @@ def badge(st): return f'<span class="badge b-{st}">{st}</span>'
 # ── 홈 ──────────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 def home():
-    cards = ""
-    for g in GROUPS:
-        shops = resolve_group(g)
-        own = [s["name"] for s in shops if s["role"] == "own"]
-        comp = [s["name"] for s in shops if s["role"] == "competitor"]
-        cards += f"""<div class=gcard>
-          <h3 style="margin:0 0 6px">{esc(group_label(g))}</h3>
-          <div class=muted>자사: {esc(', '.join(own))}<br>경쟁: {esc(', '.join(comp))}</div>
-          <form method=post action="/analyze" style="margin-top:12px">
-            <input type=hidden name=mode value=group><input type=hidden name=group value="{esc(g)}">
-            <button class=btn>이 그룹 분석 시작 →</button></form></div>"""
-
     projlist = ""
     for p in list_projects():
         projlist += f'<tr><td class=l><a href="/p/{p["pid"]}">{esc(p["label"])}</a></td>' \
@@ -120,66 +111,71 @@ def home():
         projlist = "<div class=muted>아직 프로젝트가 없습니다.</div>"
 
     body = f"""
-    <div class=card><h2>① 분석 대상 선택</h2>
-      <p class=muted>수집 완료된 그룹을 바로 분석하거나, 자사1+경쟁3 URL을 입력하세요. (report-spec 데이터부 자동 조립)</p>
-      <div class=grid>{cards}</div>
-    </div>
-    <div class=card><h2>② 직접 URL 입력 (자사1 + 경쟁3)</h2>
+    <div class=card><h2>분석 대상 입력 — 자사 1 + 경쟁사 1~3</h2>
+      <p class=muted>각 샵의 Qoo10 URL을 입력하면 데이터 수집·분석 후 보고서를 생성합니다. 경쟁사는 1~3개(2·3은 선택).</p>
       <form method=post action="/analyze">
         <input type=hidden name=mode value=urls>
         <label>카테고리 라벨</label><input name=category placeholder="예: 색조 메이크업" required>
         <div class=row3 style="margin-top:8px">
           <div><label>자사 샵 URL</label><input name=own placeholder="https://www.qoo10.jp/shop/slug" required></div>
           <div><label>경쟁사 1</label><input name=c1 placeholder="https://www.qoo10.jp/shop/slug" required></div>
-          <div><label>경쟁사 2</label><input name=c2 placeholder="https://www.qoo10.jp/shop/slug" required></div>
+          <div><label>경쟁사 2 <span class=muted>(선택)</span></label><input name=c2 placeholder="https://www.qoo10.jp/shop/slug"></div>
         </div>
         <div class=row3 style="margin-top:8px">
-          <div><label>경쟁사 3</label><input name=c3 placeholder="https://www.qoo10.jp/shop/slug" required></div>
+          <div><label>경쟁사 3 <span class=muted>(선택)</span></label><input name=c3 placeholder="https://www.qoo10.jp/shop/slug"></div>
         </div>
-        <div style="margin-top:14px"><button class="btn sec">URL로 분석 시작 →</button></div>
-        <div class=muted style="margin-top:8px">※ 새 샵은 먼저 수집이 필요합니다(수 분). 미수집 시 수집 안내가 표시됩니다.</div>
+        <div style="margin-top:16px"><button class="btn big">분석 시작 →</button></div>
+        <div class=muted style="margin-top:8px">※ 새 샵은 Qoo10에서 직접 수집합니다(샵당 수십 초~수 분). 진행률이 표시됩니다.</div>
       </form></div>
     <div class=card><h2>최근 프로젝트</h2>{projlist}</div>"""
     return page("홈", body)
 
 
 # ── 분석 시작 ───────────────────────────────────────────
-def _slug(url: str) -> str:
-    return url.rstrip("/").split("/shop/")[-1].split("/")[0].split("?")[0].strip()
+def parse_shop(url: str):
+    """Qoo10 샵 URL → 슬러그. 샵 URL(/shop/{slug})이 아니면 None (상품페이지 등 거부)."""
+    url = (url or "").strip()
+    if "/shop/" in url:
+        slug = url.split("/shop/")[-1].split("/")[0].split("?")[0].strip()
+        return slug or None
+    return None
 
 @app.post("/analyze")
 async def analyze(request: Request):
     f = await request.form()
-    mode = f.get("mode")
-    if mode == "group":
-        group = f.get("group")
-        try:
-            spec = BS.build_spec(group, generated_at=TODAY)
-        except SystemExit as e:
-            return page("수집 필요", f'<div class=card><div class=note>{esc(str(e))}</div>'
-                        '<a class=btn href="/">← 홈</a></div>')
-        pid = f"{group}-{int(time.time())}"
-    else:  # urls — 동적 그룹 등록 후 build_spec 시도
-        cat = f.get("category", "신규 카테고리")
-        own = _slug(f.get("own", "")); comps = [_slug(f.get(k, "")) for k in ("c1", "c2", "c3")]
-        gname = f"web_{own}_{int(time.time())}"
-        GROUPS[gname] = {"label": cat, "own": [own], "competitors": [c for c in comps if c]}
-        try:
-            spec = BS.build_spec(gname, generated_at=TODAY)
-        except SystemExit:
-            urls = "\n".join(f"  {s}" for s in [own] + comps if s)
-            return page("수집 필요", f"""<div class=card>
-              <div class=note><b>이 샵들은 아직 수집되지 않았습니다.</b><br>
-              먼저 CLI에서 수집 후 다시 시도하세요:</div>
-              <pre style="background:#2B1B4D;color:#fff;padding:14px;border-radius:8px;overflow:auto">
-# shops_groups.py 에 그룹 추가 또는 임시 수집
-python collect.py --group {esc(gname)}   # (그룹 등록 후)
-python score.py --group {esc(gname)}</pre>
-              <div class=muted>대상 슬러그:<br><pre>{esc(urls)}</pre></div>
-              <a class=btn href="/">← 홈</a></div>""")
-        pid = gname
-    save_spec(pid, spec)
-    return RedirectResponse(f"/p/{pid}", status_code=303)
+    own = parse_shop(f.get("own", ""))
+    # 채워진 경쟁사 칸만 대상 (경쟁사 2·3은 선택 — 최소 1개)
+    raw = [(f"경쟁사 {i}", (f.get(k, "") or "").strip()) for i, k in enumerate(("c1", "c2", "c3"), 1)]
+    parsed = [(lbl, parse_shop(u), u) for lbl, u in raw if u]
+
+    # 샵 URL 검증
+    bad = []
+    if not own:
+        bad.append(("자사", f.get("own", "")))
+    for lbl, c, u in parsed:
+        if not c:
+            bad.append((lbl, u))
+    valid_comps = [c for lbl, c, u in parsed if c]
+    if own and not valid_comps:
+        bad.append(("경쟁사", "최소 1개 이상의 경쟁사 샵 URL을 입력하세요"))
+    if bad:
+        items = "".join(f"<li><b>{esc(lbl)}</b>: {esc(u or '(빈칸)')}</li>" for lbl, u in bad)
+        return page("URL 확인", f"""<div class=card>
+          <div class=note><b>샵 URL 형식이 아닙니다.</b> 각 칸에는
+          <code>https://www.qoo10.jp/shop/&lt;슬러그&gt;</code> 형태의 <b>샵 URL</b>을 넣어주세요.
+          (상품 상세 URL <code>/gmkt.inc/Goods/...</code> 는 샵이 아닙니다 — 상품 페이지에서 판매샵 이름을 클릭하면 샵 URL이 나옵니다.)</div>
+          <ul>{items}</ul><a class=btn href="/">← 다시 입력</a></div>""")
+
+    cat = f.get("category", "신규 카테고리") or "신규 카테고리"
+    gname = f"web_{own}_{int(time.time())}"
+    shops = [{"id": own, "url": f"https://www.qoo10.jp/shop/{own}", "role": "own", "name": own}] + \
+            [{"id": c, "url": f"https://www.qoo10.jp/shop/{c}", "role": "competitor", "name": c}
+             for c in valid_comps]
+    project = {"category": cat, "gname": gname, "shops": shops}
+    PL.JOBS[gname] = {"state": "queued", "msg": "대기 중…", "i": 0, "n": len(shops)}
+    threading.Thread(target=PL.run_project, args=(gname, project, TODAY, save_spec),
+                     daemon=True).start()
+    return RedirectResponse(f"/p/{gname}", status_code=303)
 
 
 # ── 검수 페이지 ─────────────────────────────────────────
@@ -247,7 +243,28 @@ def narrative_form(spec):
 @app.get("/p/{pid}", response_class=HTMLResponse)
 def review(pid: str, done: int = 0):
     if not (PROJ / f"{pid}.json").exists():
-        return page("없음", '<div class=card>프로젝트를 찾을 수 없습니다. <a href="/">홈</a></div>')
+        # 아직 spec 없음 → 수집/분석 잡 진행 중이거나 에러
+        job = PL.JOBS.get(pid)
+        if not job:
+            return page("없음", '<div class=card>프로젝트를 찾을 수 없습니다. <a href="/">홈</a></div>')
+        if job["state"] == "error":
+            return page("실패", f"""<div class=card>
+              <div class=note><b>수집·분석에 실패했습니다.</b><br>{esc(job['msg'])}</div>
+              <div class=muted>샵 URL이 유효한지, 해당 샵에 상품이 있는지 확인하세요. 처음 수집한 샵은
+              추정매출 등 일부 지표가 비어 있을 수 있습니다.</div>
+              <a class=btn href="/">← 다시 입력</a></div>""")
+        n = job.get("n", 1) or 1
+        pct = int(job.get("i", 0) / n * 100)
+        phase = {"queued": "대기 중", "collecting": "라이브 수집 중",
+                 "scoring": "디자인 비전 평가 중", "analyzing": "분석·보고서 조립 중"}.get(job["state"], job["state"])
+        return page("진행 중", f"""<div class=card>
+          <h2>⏳ {esc(phase)}</h2>
+          <p class=muted>각 샵을 Qoo10에서 직접 수집 중입니다(샵당 수십 초~수 분, 매너상 5초 대기 포함). 이 화면은 자동 새로고침됩니다.</p>
+          <div style="background:#EAE4F5;border-radius:20px;height:14px;overflow:hidden;margin:14px 0">
+            <div style="background:#E0457B;height:100%;width:{pct}%;transition:width .3s"></div></div>
+          <div style="font-size:14px"><b>{esc(job['msg'])}</b></div>
+          <div class=muted style="margin-top:6px">상태: {esc(job['state'])} · {job.get('i',0)}/{n}</div>
+          <meta http-equiv="refresh" content="3"></div>""")
     spec = load_spec(pid)
     st = spec["review"]["status"]
     is_ai = spec["review"].get("editor") == "ai_draft"

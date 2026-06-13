@@ -205,7 +205,7 @@ def slide05_scorecard(prs, spec, charts):
     # 행
     y = top + head_h
     for ri, sh in enumerate(shops):
-        m = spec["metrics"][sh["id"]]; ds = spec["design_scores"][sh["id"]]
+        m = spec["metrics"][sh["id"]]; ds = spec["design_scores"].get(sh["id"], {})
         own = sh["role"] == "own"
         bg = T.PINK_SOFT if own else (T.WHITE if ri % 2 == 0 else T.ZEBRA)
         C.rect(s, 0.60, y, 12.13, row_h, fill=bg)
@@ -214,7 +214,8 @@ def slide05_scorecard(prs, spec, charts):
             "sku": str(m["sku"]), "price": f_price(m["price_median"]),
             "review": f_review(m), "top5": f_top5(m), "set": f_pct0(m["set_ratio"]),
             "jp": str(m["jp_limited"]), "sat": f_satp(m["satisfaction"]),
-            "fol": f_followers(m["followers"]), "design": f_score(ds["total"]),
+            "fol": f_followers(m["followers"]),
+            "design": (f_score(ds["total"]) if ds.get("total") is not None else "—"),
             "promo": f_promo(m["promo_intensity"]),
         }
         for (label, key, _, al), x, w in zip(SCORE_COLS, xs, widths):

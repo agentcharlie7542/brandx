@@ -36,10 +36,17 @@ def rubric_bar(spec, out_path):
     """슬라이드 9: 항목별 루브릭 점수(자사 강조 + 경쟁사)."""
     items = ["Thumbnail", "Shop main", "Localization", "Promo design", "Consistency"]
     keys = ["thumbnail", "shop_main", "localization", "promo_design", "consistency"]
-    shops = spec["shops"]
     ds = spec["design_scores"]
-    n = len(shops)
+    # 디자인 점수가 있는 샵만 (새 샵은 루브릭 미채점)
+    shops = [sh for sh in spec["shops"] if sh["id"] in ds]
     fig, ax = plt.subplots(figsize=(7.4, 4.3), dpi=150)
+    if not shops:
+        ax.text(0.5, 0.5, "디자인 루브릭 미채점\n(검수 단계에서 입력하거나 vision 자동채점 연계)",
+                ha="center", va="center", fontsize=13, color=INK)
+        ax.axis("off")
+        fig.savefig(out_path, bbox_inches="tight", facecolor="white"); plt.close(fig)
+        return out_path
+    n = len(shops)
     width = 0.8 / n
     import numpy as np
     x = np.arange(len(items))

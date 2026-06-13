@@ -20,6 +20,8 @@ import pandas as pd
 from score import build_scorecard
 from marketing import mine, TONE
 from shops_groups import group_label, resolve_group
+from db import connect
+import design_vision as DV
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "out"
@@ -122,17 +124,24 @@ def _gap(df, own_id):
     return sorted(rows, key=lambda g: g["achievement_pct"])
 
 
-def _gallery(shops, design, mined):
+def _gallery(shops, design, mined, cap_img):
     cards = []
     ordered = [s for s in shops if s["role"] == "own"] + [s for s in shops if s["role"] != "own"]
     for s in ordered:
         sid = s["shop_id"]
-        img = OUT / "banners" / f"{sid}_main.jpg"
+        vm = DV.load_vision_meta(sid)
+        banner = OUT / "banners" / f"{sid}_main.jpg"
+        if banner.exists():
+            image = str(banner.relative_to(ROOT))
+        elif cap_img.get(sid):
+            image = cap_img[sid]        # 수집 캡처(hero/banner/shoptop) fallback
+        else:
+            image = f"out/banners/{sid}_main.jpg"
         tone = TONE.get(sid, {}).get("tone", "")
-        caption = tone.split(".")[0].split(",")[0].strip()[:24] or (s.get("name") or sid)
+        caption = (vm.get("caption") or tone.split(".")[0].split(",")[0].strip())[:28] \
+            or (s.get("name") or sid)
         cards.append({
-            "shop_id": sid,
-            "image": str(img.relative_to(ROOT)) if img.exists() else f"out/banners/{sid}_main.jpg",
+            "shop_id": sid, "image": image,
             "score": round(design.get(sid, {}).get("total", 0.0), 2),
             "caption": caption,
         })
@@ -146,8 +155,14 @@ def _marketing(shops, mined, metrics):
         d = mined.get(sid, {})
         m = metrics.get(sid, {})
         t = TONE.get(sid, {})
-        tone[sid] = {"mood": (t.get("tone", "").split(".")[0].strip() or "—"),
-                     "campaign": t.get("hero", "—")}
+        if t:                                     # 큐레이션된 샵
+            mood = t.get("tone", "").split(".")[0].strip() or "—"
+            campaign = t.get("hero", "—")
+        else:                                     # 새 샵 → 비전 채점 결과
+            vm = DV.load_vision_meta(sid)
+            mood = vm.get("mood") or "—"
+            campaign = vm.get("campaign") or "—"
+        tone[sid] = {"mood": mood, "campaign": campaign}
         for ip in d.get("ip_collabs", []):
             collabs.append({"shop_id": sid, "partner": ip, "type": "IP"})
         for c in d.get("collabs", []):
@@ -180,9 +195,11 @@ def _narrative_skeleton(df, own_id, design, group):
         {"value": f_man(_num(own.get("follower_count"), float, 0)), "label": "팔로워"},
         {"value": f"{int(_num(own.get('satisfaction_pct'), float, 0))}%", "label": "만족도"},
     ]
+    vcom = DV.load_vision_meta(own_id).get("comments", {})
+    vcom = vcom if isinstance(vcom, dict) else {}
     diag = sorted(
         [{"item": lbl, "score": round(dt.get(key, 0.0), 1),
-          "comment": _rubric_comment(dt.get(key, 0.0))}
+          "comment": (vcom.get(key) or _rubric_comment(dt.get(key, 0.0)))}
          for key, lbl in RUBRIC_ITEMS],
         key=lambda d: -d["score"])
     return {
@@ -223,7 +240,8 @@ def _rubric_comment(v):
 # ── 메인 조립 ───────────────────────────────────────────
 def build_spec(group: str, generated_at: str | None = None) -> dict:
     df = build_scorecard(group)
-    if df.empty:
+    # 미수집 가드: 행은 있어도 지표 컬럼이 없거나 전부 NaN이면 수집 안 된 것
+    if df.empty or "review_volume" not in df.columns or df["review_volume"].notna().sum() == 0:
         raise SystemExit(f"[{group}] 스코어 데이터 없음 — 먼저 collect.py/score.py 실행")
     shops_meta = resolve_group(group)
     role = {s["shop_id"]: s["role"] for s in shops_meta}
@@ -237,9 +255,21 @@ def build_spec(group: str, generated_at: str | None = None) -> dict:
         else df.iloc[0]["shop_id"]
 
     metrics, design = _metrics_and_design(df)
+    # 갤러리용 캡처 이미지(배너 크롭 없으면 수집 캡처로 fallback) — hero>banner>shoptop
+    cap_img = {}
+    conn = connect()
+    for sid in df["shop_id"]:
+        for t in ("hero", "banner", "shoptop"):
+            r = conn.execute("SELECT path FROM image_assets WHERE shop_id=? AND asset_type=? LIMIT 1",
+                             (sid, t)).fetchone()
+            if r:
+                cap_img[sid] = r[0]
+                break
+    conn.close()
     shops = [{"id": sid, "name": name.get(sid, sid), "role": role.get(sid, "competitor"),
               "url": url.get(sid, f"https://www.qoo10.jp/shop/{sid}"),
-              "tagline": TONE.get(sid, {}).get("tone", "").split(".")[0][:18]}
+              "tagline": (TONE.get(sid, {}).get("tone", "").split(".")[0][:18]
+                          or DV.load_vision_meta(sid).get("mood", "")[:18])}
              for sid in df["shop_id"]]
 
     spec = {
@@ -252,7 +282,7 @@ def build_spec(group: str, generated_at: str | None = None) -> dict:
         "metrics": metrics,
         "design_scores": design,
         "gap": _gap(df, own_id),
-        "gallery": _gallery(shops_meta, design, mined),
+        "gallery": _gallery(shops_meta, design, mined, cap_img),
         "marketing": _marketing(shops_meta, mined, metrics),
         "narrative": _narrative_skeleton(df, own_id, design, group),
         "review": {"status": "draft", "editor": "auto", "edited_at": generated_at or ""},

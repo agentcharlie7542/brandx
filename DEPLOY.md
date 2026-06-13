@@ -18,14 +18,15 @@ docker compose logs -f web   # 로그
 ```
 > 첫 빌드는 Chromium(+OS 의존성) 설치로 수 분 소요. CJK 폰트 포함되어 차트 한글·일본어 정상 렌더.
 
-## 3. 데이터 수집 (일회성 / cron)
-웹 UI의 "그룹 분석"은 **수집된 db**를 사용합니다. 먼저 수집·스코어링:
-```bash
-docker compose run --rm web python collect.py  --group all
-docker compose run --rm web python score.py    --group all
-docker compose run --rm web python marketing.py --group all
-```
-일 1회 자동화는 호스트 cron에서 위 명령 호출(기존 `run_daily.sh` 참고). 수집매너상 일 1회 권장.
+## 3. 사용 (웹에서 라이브 수집)
+별도 수집 단계 없이 **웹 UI에서 직접** 합니다:
+1. 브라우저에서 `http://<서버IP>:8000` 접속
+2. 자사 1 + 경쟁사 1~3개의 **Qoo10 샵 URL**(`https://www.qoo10.jp/shop/<슬러그>`) 입력 → **분석 시작**
+3. 서버가 자동으로: 라이브 수집(상품·샵·이미지) → **디자인 비전 평가(Claude)** → 정량+디자인 분석 → 검수 화면
+4. 🤖 AI 초안 → 검수·편집 → ✅ 승인 → **PPTX 다운로드**
+
+> 샵당 수집 수십 초~수 분(매너상 5초 대기 포함) + 디자인 비전 ~$0.036/샵 + 서사 ~$0.11. 보고서 1건 ≈ $0.3 안팎.
+> 같은 샵을 같은 날 재분석하면 수집을 스킵해 빠릅니다.
 
 ## 4. 데이터 영속 (호스트 바인드 마운트)
 | 호스트 | 컨테이너 | 내용 |

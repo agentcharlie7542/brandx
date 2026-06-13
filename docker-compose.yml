@@ -1,5 +1,6 @@
 # 사내 단일 서버 배포. `docker compose up -d --build` → http://<host>:8000
-# 데이터(db·이미지·산출물·프로젝트)는 호스트에 바인드 마운트로 영속.
+# 데이터(db·이미지·산출물·프로젝트)는 named volume 으로 영속 (Windows/Mac/Linux 동일).
+# PPTX 는 웹 UI에서 다운로드하므로 호스트 파일 접근 불필요.
 services:
   web:
     build: .
@@ -8,16 +9,21 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - .env                       # ANTHROPIC_API_KEY (AI 서사용)
+      - .env                       # ANTHROPIC_API_KEY (AI 서사·디자인 비전)
+    environment:
+      - QOO10_DB=/app/data/qoo10.db
     volumes:
-      - ./qoo10.db:/app/qoo10.db          # 수집 데이터 (없으면 먼저 `touch qoo10.db`)
-      - ./images:/app/images              # 캡처·배너
-      - ./out:/app/out                    # 생성 PPTX·차트
-      - ./web/projects:/app/web/projects  # 검수 프로젝트 spec
+      - qoo10_data:/app/data              # 수집 DB
+      - qoo10_images:/app/images          # 캡처·배너
+      - qoo10_out:/app/out                # 생성 PPTX·차트·비전메타
+      - qoo10_projects:/app/web/projects  # 검수 프로젝트 spec
     restart: unless-stopped
 
-# 수집·스코어링은 일회성 실행으로:
-#   docker compose run --rm web python collect.py --group all
-#   docker compose run --rm web python score.py   --group all
-#   docker compose run --rm web python marketing.py --group all
-# (cron 은 호스트에서 위 명령을 일 1회 호출 — run_daily.sh 참고)
+volumes:
+  qoo10_data:
+  qoo10_images:
+  qoo10_out:
+  qoo10_projects:
+
+# 사용: 브라우저에서 http://<서버IP>:8000 → 자사1+경쟁1~3 URL 입력 → 자동 수집·분석·보고서.
+# (별도 수집 CLI 불필요 — 웹에서 라이브 수집)

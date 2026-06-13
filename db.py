@@ -8,10 +8,12 @@
 snapshots 에는 상품 파생 컬럼(is_set / is_jp_limited / discount_pct)을 추가.
 구버전 DB 호환을 위해 connect() 시 멱등 ALTER 마이그레이션을 수행한다.
 """
+import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "qoo10.db"
+# DB 경로: 환경변수 QOO10_DB 우선(컨테이너/볼륨 배포용), 없으면 프로젝트 루트.
+DB_PATH = Path(os.environ.get("QOO10_DB") or (Path(__file__).parent / "qoo10.db"))
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS products (

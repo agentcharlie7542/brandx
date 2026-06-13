@@ -21,8 +21,8 @@ RUN pip install -r requirements.txt \
 # 2) 앱 소스 (.dockerignore 로 .env·data·.venv 제외)
 COPY . .
 
-# 3) 런타임 데이터 디렉터리 (compose 에서 볼륨 마운트)
-RUN mkdir -p out web/projects images logs
+# 3) 런타임 데이터 디렉터리 (compose 에서 named volume 마운트)
+RUN mkdir -p data out web/projects images logs
 
 EXPOSE 8000
 
